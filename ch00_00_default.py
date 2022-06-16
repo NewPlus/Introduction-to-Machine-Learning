@@ -31,6 +31,9 @@ from sklearn.datasets import make_moons #make_moons용
 
 from sklearn.cluster import AgglomerativeClustering # AgglomerativeCluster
 from scipy.cluster.hierarchy import dendrogram, ward # hierarchy_cluster(dendrogram, ward)
+from sklearn.cluster import DBSCAN # DBSCAN
+from sklearn.metrics.cluster import silhouette_score # 실루엣 계수
+from sklearn.metrics.cluster import adjusted_rand_score # ARI adjusted_rand_score
 
 from sklearn.datasets import fetch_lfw_people # people 사용 예제용
 people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
