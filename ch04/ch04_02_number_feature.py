@@ -10,7 +10,6 @@ import mglearn
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 # 경고 메시지용
-from sklearn.linear_model import LogisticRegression # LogisticRegression
 from sklearn.model_selection import train_test_split
 
 from sklearn.preprocessing import MinMaxScaler
@@ -35,16 +34,6 @@ from scipy.cluster.hierarchy import dendrogram, ward # hierarchy_cluster(dendrog
 from sklearn.cluster import DBSCAN # DBSCAN
 from sklearn.metrics.cluster import silhouette_score # 실루엣 계수
 from sklearn.metrics.cluster import adjusted_rand_score # ARI adjusted_rand_score
-from sklearn.ensemble import RandomForestClassifier # 랜덤 포레스트
-
-from sklearn.preprocessing import OneHotEncoder # OneHotEncoder
-from sklearn.compose import make_column_transformer # make_column_transformer를 사용하여 ColumnTransformer 생성
-from sklearn.preprocessing import KBinsDiscretizer # 한 번에 여러 개의 특성에 적용할 수 있고, 기본적으로 구간에 원-핫-인코딩을 적용
-from sklearn.preprocessing import PolynomialFeatures # 다항식 추가용
-from sklearn.feature_selection import SelectPercentile, f_classif # 단변량 통계
-from sklearn.feature_selection import SelectFromModel # 모델 기반 특성 선택
-from sklearn.feature_selection import RFE # 반복적 특성 선택
-from sklearn.linear_model import Ridge # Ridge
 
 from sklearn.datasets import fetch_lfw_people # people 사용 예제용
 people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
@@ -63,3 +52,11 @@ y_people = people.target[mask]
 # 0~255 사이의 흑백 이미지의 픽셀 값을 0~1 사이로 스케일 조정합니다.
 # (옮긴이) MinMaxScaler를 적용하는 것과 거의 동일합니다.
 X_people = X_people / 255.
+
+# 숫자 특성과 범주형 문자열 특성을 가진 DataFrame을 만듭니다
+demo_df = pd.DataFrame({'숫자 특성': [0, 1, 2, 1], '범주형 특성': ['양말', '여우', '양말', '상자']})
+print(demo_df)
+
+# 숫자 특성과 범주형 문자열 특성을 비교합니다.
+demo_df['숫자 특성'] = demo_df['숫자 특성'].astype(str)
+print(pd.get_dummies(demo_df, columns=['숫자 특성', '범주형 특성']))

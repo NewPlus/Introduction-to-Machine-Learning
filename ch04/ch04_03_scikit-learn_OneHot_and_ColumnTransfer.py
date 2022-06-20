@@ -10,7 +10,6 @@ import mglearn
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 # 경고 메시지용
-from sklearn.linear_model import LogisticRegression # LogisticRegression
 from sklearn.model_selection import train_test_split
 
 from sklearn.preprocessing import MinMaxScaler
@@ -35,16 +34,6 @@ from scipy.cluster.hierarchy import dendrogram, ward # hierarchy_cluster(dendrog
 from sklearn.cluster import DBSCAN # DBSCAN
 from sklearn.metrics.cluster import silhouette_score # 실루엣 계수
 from sklearn.metrics.cluster import adjusted_rand_score # ARI adjusted_rand_score
-from sklearn.ensemble import RandomForestClassifier # 랜덤 포레스트
-
-from sklearn.preprocessing import OneHotEncoder # OneHotEncoder
-from sklearn.compose import make_column_transformer # make_column_transformer를 사용하여 ColumnTransformer 생성
-from sklearn.preprocessing import KBinsDiscretizer # 한 번에 여러 개의 특성에 적용할 수 있고, 기본적으로 구간에 원-핫-인코딩을 적용
-from sklearn.preprocessing import PolynomialFeatures # 다항식 추가용
-from sklearn.feature_selection import SelectPercentile, f_classif # 단변량 통계
-from sklearn.feature_selection import SelectFromModel # 모델 기반 특성 선택
-from sklearn.feature_selection import RFE # 반복적 특성 선택
-from sklearn.linear_model import Ridge # Ridge
 
 from sklearn.datasets import fetch_lfw_people # people 사용 예제용
 people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
@@ -63,3 +52,42 @@ y_people = people.target[mask]
 # 0~255 사이의 흑백 이미지의 픽셀 값을 0~1 사이로 스케일 조정합니다.
 # (옮긴이) MinMaxScaler를 적용하는 것과 거의 동일합니다.
 X_people = X_people / 255.
+
+from sklearn.preprocessing import OneHotEncoder
+# sparse=False로 설정하면 OneHotEncode가 희소 행렬이 아니라 넘파이 배열을 반환합니다
+ohe = OneHotEncoder(sparse=False)
+demo_df = pd.DataFrame({'숫자 특성': [0, 1, 2, 1], '범주형 특성': ['양말', '여우', '양말', '상자']})
+demo_df['숫자 특성'] = demo_df['숫자 특성'].astype(str)
+print(ohe.fit_transform(demo_df))
+print(ohe.get_feature_names_out())
+
+import os
+# 이 파일은 열 이름을 나타내는 헤더가 없으므로 header=None으로 지정하고
+# "names" 매개변수로 열 이름을 제공합니다
+data = pd.read_csv(os.path.join(mglearn.datasets.DATA_PATH, "adult.data"), header=None, index_col=False,
+    names=['age', 'workclass', 'fnlwgt', 'education',  'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'gender', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'income'])
+# 예제를 위해 몇개의 열만 선택합니다
+data = data[['age', 'workclass', 'education', 'gender', 'hours-per-week', 'occupation', 'income']]
+print(data.head())
+
+from sklearn.compose import ColumnTransformer
+
+ct = ColumnTransformer(
+    [("scaling", StandardScaler(), ['age', 'hours-per-week']),
+     ("onehot", OneHotEncoder(sparse=False), ['workclass', 'education', 'gender', 'occupation'])])
+from sklearn.linear_model import LogisticRegression
+# income을 제외한 모든 열을 추출합니다
+data_features = data.drop("income", axis=1)
+# 데이터프레임과 income을 분할합니다
+X_train, X_test, y_train, y_test = train_test_split(data_features, data.income, random_state=0)
+
+ct.fit(X_train)
+X_train_trans = ct.transform(X_train)
+print(X_train_trans.shape)
+
+logreg = LogisticRegression(max_iter=1000)
+logreg.fit(X_train_trans, y_train)
+
+X_test_trans = ct.transform(X_test)
+print("테스트 점수: {:.2f}".format(logreg.score(X_test_trans, y_test)))
+print(ct.named_transformers_.onehot)

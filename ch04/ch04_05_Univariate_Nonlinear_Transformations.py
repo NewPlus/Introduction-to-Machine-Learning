@@ -35,16 +35,11 @@ from scipy.cluster.hierarchy import dendrogram, ward # hierarchy_cluster(dendrog
 from sklearn.cluster import DBSCAN # DBSCAN
 from sklearn.metrics.cluster import silhouette_score # 실루엣 계수
 from sklearn.metrics.cluster import adjusted_rand_score # ARI adjusted_rand_score
-from sklearn.ensemble import RandomForestClassifier # 랜덤 포레스트
 
 from sklearn.preprocessing import OneHotEncoder # OneHotEncoder
 from sklearn.compose import make_column_transformer # make_column_transformer를 사용하여 ColumnTransformer 생성
 from sklearn.preprocessing import KBinsDiscretizer # 한 번에 여러 개의 특성에 적용할 수 있고, 기본적으로 구간에 원-핫-인코딩을 적용
 from sklearn.preprocessing import PolynomialFeatures # 다항식 추가용
-from sklearn.feature_selection import SelectPercentile, f_classif # 단변량 통계
-from sklearn.feature_selection import SelectFromModel # 모델 기반 특성 선택
-from sklearn.feature_selection import RFE # 반복적 특성 선택
-from sklearn.linear_model import Ridge # Ridge
 
 from sklearn.datasets import fetch_lfw_people # people 사용 예제용
 people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
@@ -63,3 +58,35 @@ y_people = people.target[mask]
 # 0~255 사이의 흑백 이미지의 픽셀 값을 0~1 사이로 스케일 조정합니다.
 # (옮긴이) MinMaxScaler를 적용하는 것과 거의 동일합니다.
 X_people = X_people / 255.
+
+rnd = np.random.RandomState(0)
+X_org = rnd.normal(size=(1000, 3))
+w = rnd.normal(size=3)
+
+X = rnd.poisson(10 * np.exp(X_org))
+y = np.dot(X_org, w)
+print(X[:10, 0])
+print("특성 출현 횟수:\n", np.bincount(X[:, 0]))
+
+plt.xlim(0, 160)
+plt.ylim(0, 70)
+bins = np.bincount(X[:, 0])
+plt.bar(range(len(bins)), bins, color='grey')
+plt.ylabel("출현 횟수")
+plt.xlabel("값")
+plt.show()
+
+from sklearn.linear_model import Ridge
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+score = Ridge().fit(X_train, y_train).score(X_test, y_test)
+print("테스트 점수: {:.3f}".format(score))
+
+X_train_log = np.log(X_train + 1)
+X_test_log = np.log(X_test + 1)
+plt.hist(X_train_log[:, 0], bins=25, color='gray')
+plt.ylabel("출현 횟수")
+plt.xlabel("값")
+plt.show()
+
+score = Ridge().fit(X_train_log, y_train).score(X_test_log, y_test)
+print("테스트 점수: {:.3f}".format(score))
