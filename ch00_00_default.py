@@ -29,6 +29,7 @@ from sklearn.decomposition import NMF # NMF
 from sklearn.datasets import make_blobs #make_blobs용
 from sklearn.cluster import KMeans # k-means
 from sklearn.datasets import make_moons #make_moons용
+from sklearn.svm import SVC # SVC
 
 from sklearn.cluster import AgglomerativeClustering # AgglomerativeCluster
 from scipy.cluster.hierarchy import dendrogram, ward # hierarchy_cluster(dendrogram, ward)
@@ -45,6 +46,11 @@ from sklearn.feature_selection import SelectPercentile, f_classif # 단변량 �
 from sklearn.feature_selection import SelectFromModel # 모델 기반 특성 선택
 from sklearn.feature_selection import RFE # 반복적 특성 선택
 from sklearn.linear_model import Ridge # Ridge
+
+from sklearn.model_selection import cross_val_score # 교차 검증용
+from sklearn.model_selection import cross_validate # 교차 검증용
+from sklearn.model_selection import LeaveOneOut # LOOCV(Leave-One-Out cross-validation)
+from sklearn.model_selection import GridSearchCV # GridSearchCV
 
 from sklearn.datasets import fetch_lfw_people # people 사용 예제용
 people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
