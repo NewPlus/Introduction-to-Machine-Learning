@@ -54,7 +54,6 @@ from sklearn.model_selection import GridSearchCV # GridSearchCV
 
 from sklearn.pipeline import Pipeline # 파이프라인 구축용
 from sklearn.pipeline import make_pipeline # make_pipeline
-from sklearn.preprocessing import PolynomialFeatures # 다항식 특성 선택
 
 from sklearn.datasets import fetch_lfw_people # people 사용 예제용
 people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
@@ -73,3 +72,29 @@ y_people = people.target[mask]
 # 0~255 사이의 흑백 이미지의 픽셀 값을 0~1 사이로 스케일 조정합니다.
 # (옮긴이) MinMaxScaler를 적용하는 것과 거의 동일합니다.
 X_people = X_people / 255.
+
+X_train, X_test, y_train, y_test = train_test_split(boston.data, boston.target, random_state=0)
+from sklearn.preprocessing import PolynomialFeatures
+pipe = make_pipeline(
+    StandardScaler(),
+    PolynomialFeatures(),
+    Ridge())
+param_grid = {'polynomialfeatures__degree': [1, 2, 3], 'ridge__alpha': [0.001, 0.01, 0.1, 1, 10, 100]}
+grid = GridSearchCV(pipe, param_grid=param_grid, cv=5, n_jobs=-1)
+grid.fit(X_train, y_train)
+
+mglearn.tools.heatmap(grid.cv_results_['mean_test_score'].reshape(3, -1),
+                      xlabel="ridge__alpha", ylabel="polynomialfeatures__degree",
+                      xticklabels=param_grid['ridge__alpha'],
+                      yticklabels=param_grid['polynomialfeatures__degree'], vmin=0)
+plt.show()
+
+print("최적의 매개변수:", grid.best_params_)
+print("테스트 세트 점수: {:.2f}".format(grid.score(X_test, y_test)))
+
+# 다항식 특성이 없는 경우
+param_grid = {'ridge__alpha': [0.001, 0.01, 0.1, 1, 10, 100]}
+pipe = make_pipeline(StandardScaler(), Ridge())
+grid = GridSearchCV(pipe, param_grid, cv=5)
+grid.fit(X_train, y_train)
+print("다항 특성이 없을 때 점수: {:.2f}".format(grid.score(X_test, y_test)))
