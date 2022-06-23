@@ -43,10 +43,10 @@ pipe = make_pipeline(TfidfVectorizer(tokenizer=okt.morphs), LogisticRegression()
 grid = GridSearchCV(pipe, param_grid, n_jobs=-1)
 
 # 그리드 서치를 수행합니다
-grid.fit(text_train, y_train)
+grid.fit(text_train[:1000], y_train[:1000])
 print("최상의 크로스 밸리데이션 점수: {:.3f}".format(grid.best_score_))
 print("최적의 크로스 밸리데이션 파라미터: ", grid.best_params_)
 
-X_test = grid.best_estimator_.named_steps["tfidfvectorizer"].transform(text_test)
-score = grid.best_estimator_.named_steps["logisticregression"].score(X_test, y_test)
+X_test = grid.best_estimator_.named_steps["tfidfvectorizer"].transform(text_test[:1000])
+score = grid.best_estimator_.named_steps["logisticregression"].score(X_test[:1000], y_test[:1000])
 print("테스트 세트 점수: {:.3f}".format(score))
